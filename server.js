@@ -59,8 +59,10 @@ app.get("/create-checkout", (req, res) => {
 app.get("/verify", async (req, res) => {
   try {
     assertCreds();
-    const { transaction_id, user="guest" } = req.query;
-    if (!transaction_id) return res.status(400).json({ error: "missing_transaction_id" });
+    const { transaction_id, user = "guest" } = req.query;
+    if (!transaction_id) {
+      return res.status(400).json({ error: "missing_transaction_id" });
+    }
 
     const resp = await fetch("https://api.payken.io/api/v1/auth/paymentData", {
       method: "POST",
@@ -69,17 +71,24 @@ app.get("/verify", async (req, res) => {
         merchant_id: MERCHANT_ID,
         merchant_secret: MERCHANT_SECRET,
         user_info: user,
-        id: transaction_id
-      })
+        id: transaction_id,
+      }),
     });
     const data = await resp.json();
 
-    const paid = data?.status === true ll (data?.payment_status == "success";
+    // ✅ fixed "or" → "||"
+    const paid = (data?.status === true) || (data?.payment_status === "success");
+
     res.json({ verified: Boolean(paid), raw: data });
   } catch (e) {
-    res.status(500).json({ verified: false, error: "verify_failed", message: e.message });
+    res.status(500).json({
+      verified: false,
+      error: "verify_failed",
+      message: e.message,
+    });
   }
 });
+
 
 // 3) Browser return page (optional)
 app.get("/return", (req, res) => {
