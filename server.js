@@ -74,7 +74,7 @@ app.get("/verify", async (req, res) => {
     });
     const data = await resp.json();
 
-    const paid = data?.status === true or data?.payment_status == "success";
+    const paid = data?.status === true ll (data?.payment_status == "success";
     res.json({ verified: Boolean(paid), raw: data });
   } catch (e) {
     res.status(500).json({ verified: false, error: "verify_failed", message: e.message });
